@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 	gofastly "github.com/sethvargo/go-fastly/fastly"
 )
 
@@ -42,6 +43,30 @@ var (
 					Optional:    true,
 					Description: "Name of the corresponding response object.",
 				},
+				"rules": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Description: "Manipulating the status of rules based on rule ID or tag",
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"tags": {
+								Type:     schema.TypeList,
+								Optional: true,
+								Elem:     &schema.Schema{Type: schema.TypeString},
+							},
+							"rules": {
+								Type:     schema.TypeList,
+								Optional: true,
+								Elem:     &schema.Schema{Type: schema.TypeString},
+							},
+							"status": {
+								Type:         schema.TypeString,
+								Optional:     false,
+								ValidateFunc: validation.StringInSlice([]string{"log", "block", "disabled"}, false),
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -65,6 +90,16 @@ func expandWAF(wafMap map[string]interface{}) terraformWAF {
 	owaspSchema := wafMap["owasp"].(*schema.Set).List()
 	if len(owaspSchema) == 1 {
 		tf.owasp = expandOWASP(owaspSchema[0].(map[string]interface{}))
+	}
+
+	// Unmarshal rules
+	if _, ok := wafMap["rules"]; !ok {
+		return tf
+	}
+	ruleInterfaces := wafMap["rules"].([]interface{})
+	for _, rule := range ruleInterfaces {
+		ruleMap := rule.(map[string]interface{})
+		fmt.Printf("\nAAAAAAAA\n\nAAAA\n|%+v|\n\nAAA\n", ruleMap)
 	}
 
 	return tf
