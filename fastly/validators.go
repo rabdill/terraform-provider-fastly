@@ -31,3 +31,18 @@ func validateLoggingMessageType(v interface{}, k string) (ws []string, errors []
 	}
 	return
 }
+
+func validateRuleStatus(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	validStatuses := map[string]struct{}{
+		"log":      {},
+		"disabled": {},
+		"block":    {},
+	}
+
+	if _, ok := validStatuses[value]; !ok {
+		errors = append(errors, fmt.Errorf(
+			"%q must be one of ['log', 'disabled', 'block']", k))
+	}
+	return
+}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
 	gofastly "github.com/sethvargo/go-fastly/fastly"
 )
 
@@ -61,8 +60,8 @@ var (
 							},
 							"status": {
 								Type:         schema.TypeString,
-								Optional:     false,
-								ValidateFunc: validation.StringInSlice([]string{"log", "block", "disabled"}, false),
+								Required:     true,
+								ValidateFunc: validateRuleStatus,
 							},
 						},
 					},
